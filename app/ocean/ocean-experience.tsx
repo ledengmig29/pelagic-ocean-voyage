@@ -69,7 +69,7 @@ export default function OceanExperience(){
       if(!active)return;
       const dt=last?Math.min((now-last)/1000,.05):1/60;last=now;
       const current=displayedProgress.current;
-      let next=motion.matches?target:current+(target-current)*(1-Math.exp(-dt*5.5));
+      let next=motion.matches?target:current+(target-current)*(1-Math.exp(-dt*3.2));
       if(Math.abs(target-next)<.0001)next=target;
       displayedProgress.current=next;setProgress(next);
       if(next!==target)raf=requestAnimationFrame(frame);

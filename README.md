@@ -1,6 +1,12 @@
 # PELAGIC · 瓶中之海
 
+[在线体验](https://lueur-living-gallery.ledengmig29.chatgpt.site/) · [GitHub 源码](https://github.com/ledengmig29/pelagic-ocean-voyage)
+
+![PELAGIC · 瓶中之海](public/pelagic-cover.png)
+
 首页现在是 Three.js / WebGL 实时海洋叙事：宁静海面 → 白色三桅帆船驶入风暴 → 镜头拉远揭示玻璃瓶 → GPT 6.1 Sol 署名。滚轮或触屏滑动控制连续镜头，顶部章节可直接跳转；右下角声音按钮开启 Runway 生成的海浪与风雨环境音。原 LUEUR 展厅保留在 `/gallery`，既有 Remotion 作品保持可用。
+
+首屏与右下角的播放按钮可自动走完 36 秒完整航程，支持暂停、继续与重播。手动滚动、触屏滑动或点击章节时会暂停自动播放；播放结束停留在瓶中世界和署名。帆船从视口外连续驶入，起点随屏幕宽度适配。
 
 海面采用 4000 × 4000 的 512² 网格，近场集中采样、12 条 Gerstner 波（70–140 / 28–48 / 16–24 三组）、FBM 顶点扰动、tanh 压缩、5 层法线、Schlick Fresnel 与天空 CubeMap、次表面透光、3 重太阳高光、4 层各向异性泡沫和距离雾。Gerstner 传播使用深水色散关系；这是物理启发的视觉模型，未模拟流体求解、破碎波或真实船体流体阻力。
 
@@ -35,6 +41,14 @@ npm run dev
 ```
 
 打开 http://localhost:5173/ 。生产构建：`npm run build`。类型检查：`node node_modules/typescript/bin/tsc --noEmit`。水体容量、甲板净空和船瓶几何回归：`npm run ocean:check`。
+
+```powershell
+npm run ocean:entry-check       # 入场连续性、屏幕比例与反向跳转
+npm run ocean:transition-check  # 海面、瓶内水体、玻璃与字幕的转场
+npm run ocean:rain-check        # 连续降雨与时间线跳转
+```
+
+HyperFrames 引擎打包需要安装 FFmpeg 并将其加入 PATH。音频、图片和生成的引擎已包含在仓库中；依赖目录、构建产物、缓存及视频导出文件不随源码提交。
 
 ## 影像
 

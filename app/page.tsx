@@ -1,2 +1,2 @@
-import Gallery from "./gallery";
-export default function Home() { return <Gallery />; }
+import OceanExperience from "./ocean/ocean-experience";
+export default function Home() { return <OceanExperience />; }

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PELAGIC — Ocean Voyage</title>
+  <script src="gsap.min.js"></script>
+  <script src="ocean-engine.js"></script>
+  <style>
+    @font-face { font-family: "SimSun"; src: local("SimSun"); }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #071b28; }
+    body { color: #eee7d9; font-family: Georgia, "Times New Roman", "SimSun", serif; }
+    #ocean-voyage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #071b28; }
+    #sea-stage, #vignette { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #sea-stage canvas { display: block; width: 100%; height: 100%; }
+    #vignette { pointer-events: none; background: radial-gradient(ellipse 2000px 270px at 50% 0%, rgba(7,27,40,.84) 0%, rgba(7,27,40,.78) 60%, rgba(7,27,40,0) 100%), radial-gradient(ellipse 2200px 200px at 50% 100%, rgba(7,27,40,.88) 0%, rgba(7,27,40,.80) 65%, rgba(7,27,40,0) 100%), radial-gradient(ellipse 1400px 500px at 0% 100%, rgba(7,27,40,.80) 0%, rgba(7,27,40,.60) 55%, rgba(7,27,40,0) 100%); }
+    .scene { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    #storm-copy, #bottle-copy, #bottle-reveal, #credit-copy { opacity: 0; }
+    .scene-content { width: 100%; height: 100%; padding: 130px 108px 132px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 24px; }
+    .eyebrow { margin: 0; display: flex; align-items: center; gap: 18px; padding: 7px 12px; background: rgba(7,27,40,.84); color: #b9a578; font: 400 18px/1.6 Arial, "Microsoft YaHei", sans-serif; letter-spacing: 4px; }
+    .eyebrow .rule { width: 48px; height: 1px; background: #b9a578; }
+    h1 { margin: 0; max-width: 1120px; color: #eee7d9; font-size: 92px; line-height: 1.07; letter-spacing: -3px; font-weight: 400; }
+    .description { margin: 0; color: #eee7d9; max-width: 800px; font: 300 24px/1.6 Arial, "Microsoft YaHei", sans-serif; letter-spacing: 1px; }
+    #credit-copy h1 { font-size: 108px; }
+    .header { position: absolute; inset: 52px 108px auto; display: flex; justify-content: space-between; align-items: center; gap: 30px; }
+    .brand { margin: 0; color: #eee7d9; font-size: 30px; line-height: 1.6; letter-spacing: 6px; }
+    .header-right { display: flex; align-items: center; gap: 27px; }
+    .header-label { margin: 0; color: #b9a578; font: 400 17px/1.6 Arial, sans-serif; letter-spacing: 4px; }
+    #voyage-mark { width: 38px; height: 38px; color: #b9a578; transform-origin: center; }
+    .footer { position: absolute; inset: auto 108px 47px; display: flex; justify-content: space-between; gap: 32px; color: #b9a578; font: 400 16px/1.6 Arial, sans-serif; letter-spacing: 3px; }
+    .footer p { margin: 0; }
+  </style>
+</head>
+<body>
+  <div data-hf-id="hf-rsuk" id="ocean-voyage" data-composition-id="ocean-voyage" data-start="0" data-duration="36" data-width="1920" data-height="1080" data-track-index="0">
+    <div data-hf-id="hf-tma0" id="sea-stage" data-layout-ignore=""></div>
+    <div data-hf-id="hf-3obq" id="vignette" data-layout-ignore=""></div>
+    <div data-hf-id="hf-4y7z" class="header">
+      <p data-hf-id="hf-h1ou" id="brand" class="brand">PELAGIC</p>
+      <div data-hf-id="hf-77im" class="header-right">
+        <p data-hf-id="hf-d50s" id="header-label" class="header-label">AN OCEAN IN THREE ACTS</p>
+        <svg data-hf-id="hf-x070" id="voyage-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true" data-layout-ignore="">
+          <path data-hf-id="hf-symh" d="M20 1L23 17L39 20L23 23L20 39L17 23L1 20L17 17Z" stroke="currentColor" stroke-width="1" />
+          <path data-hf-id="hf-607p" d="M20 1L20 20L23 17Z" fill="currentColor" />
+        </svg>
+      </div>
+    </div>
+    <div data-hf-id="hf-efmr" id="sea-copy" class="scene">
+      <div data-hf-id="hf-pypt" class="scene-content" data-layout-allow-overflow="">
+        <p data-hf-id="hf-05q1" id="sea-eyebrow" class="eyebrow"><span data-hf-id="hf-p81i">01</span><span data-hf-id="hf-6o6j" class="rule"></span><span data-hf-id="hf-58nb">THE OPEN SEA</span></p>
+        <h1 data-hf-id="hf-gtiv" id="sea-title" data-layout-allow-overlap="">A sea of possibility.</h1>
+        <p data-hf-id="hf-c43w" id="sea-description" class="description">风起之前，万物屏息。</p>
+      </div>
+    </div>
+    <div data-hf-id="hf-21id" id="storm-copy" class="scene">
+      <div data-hf-id="hf-lhjp" class="scene-content" data-layout-allow-overflow="">
+        <p data-hf-id="hf-n5f3" id="storm-eyebrow" class="eyebrow"><span data-hf-id="hf-pmcj">02</span><span data-hf-id="hf-424r" class="rule"></span><span data-hf-id="hf-yrhe">INTO THE TEMPEST</span></p>
+        <h1 data-hf-id="hf-r91y" id="storm-title" data-layout-allow-overlap="">Follow the storm.</h1>
+        <p data-hf-id="hf-un0s" id="storm-description" class="description">扬起风帆，驶向想象的深处。</p>
+      </div>
+    </div>
+    <div id="bottle-reveal" class="scene">
+    <div data-hf-id="hf-gyyc" id="bottle-copy" class="scene">
+      <div data-hf-id="hf-mogs" class="scene-content" data-layout-allow-overflow="">
+        <p data-hf-id="hf-5pe0" id="bottle-eyebrow" class="eyebrow"><span data-hf-id="hf-q0nk">03</span><span data-hf-id="hf-3ntq" class="rule"></span><span data-hf-id="hf-qo1n">A WORLD WITHIN</span></p>
+        <h1 data-hf-id="hf-tnq4" id="bottle-title" data-layout-allow-overlap="">The world, contained.</h1>
+        <p data-hf-id="hf-eaul" id="bottle-description" class="description" data-layout-allow-overlap="">一场远航，原来盛放在一只玻璃瓶里。</p>
+      </div>
+    </div>
+    </div>
+    <div data-hf-id="hf-iqt5" id="credit-copy" class="scene">
+      <div data-hf-id="hf-ma5r" class="scene-content" data-layout-allow-overflow="">
+        <p data-hf-id="hf-34ev" id="credit-eyebrow" class="eyebrow">IMAGINED &amp; CREATED WITH</p>
+        <h1 data-hf-id="hf-9ay3" id="credit-title" data-layout-allow-overlap="">GPT 6.1 Sol</h1>
+        <p data-hf-id="hf-u7c5" id="credit-description" class="description" data-layout-allow-overlap="">把想象，变成可见的世界。</p>
+      </div>
+    </div>
+    <div data-hf-id="hf-yh7l" class="footer"><p data-hf-id="hf-w7pn" id="footer-tech">THREE.JS / WEBGL</p><p data-hf-id="hf-bs8z" id="footer-duration">36 SECONDS · ONE CONTINUOUS VOYAGE</p></div>
+    <audio id="ocean-intro-audio" src="assets/ocean-ambience-36s.mp3" data-start="0" data-duration="12" data-track-index="1" data-volume=".42" data-fade-in=".8" data-fade-out="4"></audio>
+    <audio id="ocean-bed-audio" src="assets/ocean-ambience-36s.mp3" data-start="8" data-duration="20" data-media-start="8" data-track-index="2" data-volume=".14" data-fade-in="4" data-fade-out="4"></audio>
+    <audio id="ocean-outro-audio" src="assets/ocean-ambience-36s.mp3" data-start="24" data-duration="12" data-media-start="24" data-track-index="3" data-volume=".4" data-fade-in="5" data-fade-out="1"></audio>
+    <audio id="storm-audio" src="assets/storm-ambience-28s.mp3" data-start="8" data-duration="28" data-track-index="4" data-volume=".64" data-fade-in="3" data-fade-out="10"></audio>
+  </div>
+  <script>
+    // The engine never owns a render loop. Capture and playback seek the same state.
+    const ocean = OceanVoyage.createOceanScene(document.getElementById("sea-stage"), {
+      quality: "high",
+      onReady: function () { window.__oceanReady = true; }
+    });
+    ocean.resize(1920, 1080);
+    ocean.render(0, 0);
+
+    window.__timelines = window.__timelines || {};
+    const bottleReveal = document.getElementById("bottle-reveal");
+    const tl = gsap.timeline({
+      paused: true,
+      onUpdate: function () {
+        const progress = OceanVoyage.oceanProgressAt(tl.time());
+        bottleReveal.style.opacity = String(OceanVoyage.getOceanTransition(progress).titleReveal);
+        ocean.render(tl.time(), progress);
+      }
+    });
+    window.__timelines["ocean-voyage"] = tl;
+
+    tl.from("#sea-stage", { opacity: 0, duration: .85, ease: "sine.out" }, .15);
+    tl.from("#brand", { y: -12, opacity: 0, duration: .7, ease: "power3.out" }, .25);
+    tl.from("#header-label", { x: 20, opacity: 0, duration: .8, ease: "power2.out" }, .4);
+    tl.from("#voyage-mark", { scale: .8, opacity: 0, duration: 1, ease: "sine.out" }, .3);
+    tl.from("#footer-tech", { opacity: 0, duration: .7, ease: "sine.out" }, .65);
+    tl.from("#footer-duration", { y: 10, opacity: 0, duration: .7, ease: "power2.out" }, .75);
+    // A visible compass rotation provides continuous timeline duration and render updates.
+    tl.to("#voyage-mark", { rotation: 360, duration: 36, ease: "none" }, 0);
+
+    function entrance(name, at, duration) {
+      tl.from("#" + name + "-title", { y: 32, opacity: 0, duration: duration, ease: "power3.out" }, at);
+      tl.from("#" + name + "-eyebrow", { x: -18, opacity: 0, duration: duration * .7, ease: "sine.out" }, at + .12);
+      tl.from("#" + name + "-description", { y: 14, opacity: 0, duration: duration * .8, ease: "power2.out" }, at + .25);
+    }
+    function crossfade(outgoing, incoming, at, duration) {
+      // Container fades are the transition itself; outgoing text has no exit tween.
+      tl.to("#" + outgoing + "-copy", { opacity: 0, duration: duration, ease: "sine.inOut" }, at);
+      tl.to("#" + incoming + "-copy", { opacity: 1, duration: duration, ease: "sine.inOut" }, at);
+    }
+    entrance("sea", .3, 1.2);
+    crossfade("sea", "storm", 9.5, .5);
+    entrance("storm", 10, .4);
+    crossfade("storm", "bottle", 22.4, 1.2);
+    entrance("bottle", 29.8, 1.05);
+    crossfade("bottle", "credit", 33.0, .8);
+    entrance("credit", 33.1, .7);
+    window.__oceanFilm = { ocean: ocean, timeline: tl };
+  </script>
+</body>
+</html>

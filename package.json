@@ -20,6 +20,7 @@
     "ocean:check": "node scripts/check-ocean-geometry.mjs",
     "ocean:transition-check": "node scripts/check-ocean-transition.mjs",
     "ocean:rain-check": "node scripts/check-ocean-rain.mjs",
+    "ocean:entry-check": "node scripts/check-ocean-entry.mjs",
     "ocean:hyperframes": "npm run ocean:bundle && cd hyperframes/ocean-voyage && npx --yes hyperframes@0.8.104 preview --background",
     "video:render:ocean": "remotion render remotion/index.ts OceanVoyage out/ocean-voyage.mp4 --gl=angle --concurrency=1 --codec=h264 --crf=18 --pixel-format=yuv420p",
     "video:poster:ocean": "remotion still remotion/index.ts OceanVoyage out/ocean-voyage-poster.png --frame=150 --gl=angle"

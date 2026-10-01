@@ -9,6 +9,7 @@ import { createTallShip } from "./tall-ship";
 import { createBottleWater } from "./bottle-water";
 import { BOTTLE_WATER_LEVEL } from "./bottle-profile";
 import { applyShipBuoyancy } from "./ship-buoyancy";
+import { createShipEntry } from "./ship-entry";
 import { getOceanTransition } from "./ocean-transition";
 import { createOceanRain, createRainClock } from "./ocean-rain";
 import { SHIP_STORM_WAVE_SCALE, SHIP_BOTTLE_WAVE_SCALE, SHIP_CLOSE_YAW, SHIP_BOTTLE_YAW } from "./ship-motion";
@@ -153,6 +154,7 @@ export function createOceanScene(container:HTMLElement,options:{quality?:"high"|
   scene.add(interiorOcean);
   const oceanVolume=createBottleWater();scene.add(oceanVolume.group);
   const ship=createTallShip();scene.add(ship.group);
+  const placeShip=createShipEntry(ship.group);
   const bottle=createBottle(cubeTarget.texture);scene.add(bottle.group);
   const rain=createOceanRain();scene.add(rain.object);
   const rainClock=createRainClock(options.interactive??false);
@@ -204,13 +206,6 @@ export function createOceanScene(container:HTMLElement,options:{quality?:"high"|
     oceanMaterial.depthWrite=transition.outerOceanOpacity===1;
     const waterHeight=(x:number,z:number)=>seaLevel+waveScale*sampleOceanHeight(x,z,time,storm);
     oceanVolume.update(time,transition.volumeReveal,waterHeight,transition.bottleReveal);
-    // Fixed calm/storm sky cubes blend analytically in the water shader: seeking is history-independent.
-    ship.group.visible=enter>.001;
-    ship.group.position.set(THREE.MathUtils.lerp(-130,0,enter),0,THREE.MathUtils.lerp(-33,0,enter));
-    if(ship.group.visible)applyShipBuoyancy(ship.group,THREE.MathUtils.lerp(SHIP_CLOSE_YAW,SHIP_BOTTLE_YAW,transition.cameraPullback),waterHeight);
-    oceanMaterial.uniforms.uShipActive.value=ship.group.visible?1:0;
-    oceanMaterial.uniforms.uShipInverse.value.copy(ship.group.matrixWorld).invert();
-    ship.update(time,storm);
     bottle.setReveal(transition.bottleReveal);
     lightning.material.opacity=flash;
     lightning.visible=flash>0.001;
@@ -235,6 +230,14 @@ export function createOceanScene(container:HTMLElement,options:{quality?:"high"|
     look.y=THREE.MathUtils.lerp(look.y,8,transition.framing);
     look.z=THREE.MathUtils.lerp(look.z,wide?0:15,transition.framing);
     camera.lookAt(look);camera.updateProjectionMatrix();
+    // Frustum clipping reveals the advancing bow naturally; there is no
+    // visibility switch that can expose a pre-existing slice of the ship.
+    const yaw=THREE.MathUtils.lerp(SHIP_CLOSE_YAW,SHIP_BOTTLE_YAW,transition.cameraPullback);
+    placeShip(camera,enter,yaw,ship.group.position);
+    applyShipBuoyancy(ship.group,yaw,waterHeight);
+    oceanMaterial.uniforms.uShipActive.value=1;
+    oceanMaterial.uniforms.uShipInverse.value.copy(ship.group.matrixWorld).invert();
+    ship.update(time,storm);
     const precipitationTime=options.reducedMotion?6:rainClock(time,p);
     rain.update(precipitationTime,storm*.29*(1-transition.stormRelease),camera);
     oceanMaterial.uniforms.uCameraPosition.value.copy(camera.position);

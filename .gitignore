@@ -48,4 +48,5 @@ next-env.d.ts
 *.tsbuildinfo
 /hyperframes/**/.hyperframes/
 /hyperframes/**/.thumbnails/
+/hyperframes/**/.waveform-cache/
 /hyperframes/**/renders/

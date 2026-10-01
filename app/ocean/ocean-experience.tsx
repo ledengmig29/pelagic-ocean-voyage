@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUpRight, RotateCcw, Volume2, VolumeX, X, Compass } from "lucide-react";
+import { ArrowDown, ArrowUpRight, RotateCcw, Volume2, VolumeX, X, Compass, Play, Pause } from "lucide-react";
 import OceanCanvas from "./ocean-canvas";
 import { getOceanTransition, transitionEase } from "./ocean-transition";
+import { useOceanVoyage } from "./use-ocean-voyage";
 import "./ocean.css";
 
 const chapters=[
@@ -51,51 +52,19 @@ function useSeaSound(){
 }
 
 export default function OceanExperience(){
-  const [progress,setProgress]=useState(0);
   const [ready,setReady]=useState(false);
   const [about,setAbout]=useState(false);
   const sound=useSeaSound();
   const page=useRef<HTMLDivElement>(null);
   const dialog=useRef<HTMLDialogElement>(null);
-  const displayedProgress=useRef(0);
+  const {progress,playback,togglePlayback,pausePlayback,replayPlayback,go}=useOceanVoyage(page);
+  const playbackLabel=playback==="playing"?"暂停播放":playback==="paused"?"继续播放":playback==="complete"?"重新播放":"播放全程";
   const transition=getOceanTransition(progress);
   const creditReveal=transitionEase(.925,1,progress);
   const active=progress<.3?0:transition.titleReveal>0?2:1;
-  useEffect(()=>{
-    let raf=0,last=0,target=0,active=!document.hidden;
-    const motion=window.matchMedia("(prefers-reduced-motion: reduce)");
-    const frame=(now:number)=>{
-      raf=0;
-      if(!active)return;
-      const dt=last?Math.min((now-last)/1000,.05):1/60;last=now;
-      const current=displayedProgress.current;
-      let next=motion.matches?target:current+(target-current)*(1-Math.exp(-dt*3.2));
-      if(Math.abs(target-next)<.0001)next=target;
-      displayedProgress.current=next;setProgress(next);
-      if(next!==target)raf=requestAnimationFrame(frame);
-      else last=0;
-    };
-    const update=()=>{
-      const distance=Math.max(1,(page.current?.offsetHeight??innerHeight)-innerHeight);
-      target=Math.min(1,Math.max(0,window.scrollY/distance));
-      if(active&&!raf)raf=requestAnimationFrame(frame);
-    };
-    const visibility=()=>{
-      active=!document.hidden;last=0;
-      if(active)update();else{cancelAnimationFrame(raf);raf=0;}
-    };
-    update();window.addEventListener("scroll",update,{passive:true});window.addEventListener("resize",update);
-    document.addEventListener("visibilitychange",visibility);motion.addEventListener("change",update);
-    return()=>{cancelAnimationFrame(raf);window.removeEventListener("scroll",update);window.removeEventListener("resize",update);
-      document.removeEventListener("visibilitychange",visibility);motion.removeEventListener("change",update);};
-  },[]);
   useEffect(()=>{const storm=Math.min(1,Math.max(0,(progress-.25)/.16))*(1-transition.stormRelease);sound.weather(storm);},[progress,sound,transition.stormRelease]);
   useEffect(()=>{if(about)dialog.current?.showModal();else dialog.current?.close();},[about]);
-  const go=(p:number)=>{
-    const distance=(page.current?.offsetHeight??innerHeight)-innerHeight;
-    window.scrollTo({top:distance*p,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
-  };
-  return <div ref={page} className="ocean-page" data-chapter={active+1} style={{"--voyage-progress":progress} as React.CSSProperties}>
+  return <div ref={page} className="ocean-page" data-chapter={active+1} data-playback={playback} style={{"--voyage-progress":progress} as React.CSSProperties}>
     <div className="ocean-stage">
       <OceanCanvas className="ocean-webgl" progress={progress} smoothProgress={false} onReady={()=>setReady(true)} quality="high"/>
       <div className="ocean-vignette"/>
@@ -110,7 +79,7 @@ export default function OceanExperience(){
         <nav aria-label="航行章节">
           {chapters.map((c,i)=><button key={c.number} onClick={()=>go(c.progress)} className={active===i?"is-active":""} aria-current={active===i?"step":undefined}><span>{c.number}</span>{c.label}</button>)}
         </nav>
-        <button className="ocean-about" onClick={()=>setAbout(true)}>关于作品 <ArrowUpRight size={14}/></button>
+        <button className="ocean-about" onClick={()=>{pausePlayback();setAbout(true);}}>关于作品 <ArrowUpRight size={14}/></button>
       </header>
 
       <div className="ocean-hero" style={{opacity:Math.max(0,1-progress/.25),transform:`translateY(${-progress*140}px)`}} aria-hidden={active!==0} inert={active!==0}>
@@ -118,7 +87,7 @@ export default function OceanExperience(){
         <h1>A sea<br/><em>within.</em></h1>
         <p className="ocean-hero-cn">把一场风暴，收藏进一只玻璃瓶。</p>
         <p className="ocean-hero-copy">从一片无垠的海，驶向一个不可能的世界。<br/>向下滚动，让故事随海浪展开。</p>
-        <button className="ocean-enter" onClick={()=>go(.36)}>开启航行 <span><ArrowUpRight size={19} strokeWidth={1}/></span></button>
+        <button className="ocean-enter" onClick={replayPlayback} disabled={!ready}>播放完整航程 <span><Play size={18} strokeWidth={1}/></span></button>
       </div>
 
       <div className="ocean-act-title ocean-storm-title" style={{opacity:Math.max(0,Math.min(1,(progress-.29)/.06,(.66-progress)/.075))}} aria-hidden={active!==1}>
@@ -133,7 +102,7 @@ export default function OceanExperience(){
         <p>原来，无垠也可以被珍藏。</p>
         <div className="ocean-credit" style={{opacity:creditReveal,transform:`translateY(${(1-creditReveal)*14}px)`}}>
           <span>IMAGINED & CREATED BY</span><strong>GPT 6.1 <i>Sol</i><span className="ocean-credit-star">✳</span></strong>
-          <button onClick={()=>go(0)}><RotateCcw size={13}/> 再航行一次</button>
+          <button onClick={replayPlayback}><RotateCcw size={13}/> 再航行一次</button>
         </div>
       </div>
 
@@ -146,11 +115,18 @@ export default function OceanExperience(){
         <button className={`ocean-scroll ${progress>.95?"at-end":""}`} onClick={()=>go(progress>.95?0:active===2?1:chapters[active+1].progress)} aria-label={progress>.95?"返回海面":"向下探索下一幕"}>
           <span>{progress>.95?"BACK TO THE SEA":"SCROLL TO EXPLORE"}</span><ArrowDown size={19} strokeWidth={1}/>
         </button>
+        <div className="ocean-controls">
+        <button className="ocean-playback" onClick={togglePlayback} disabled={!ready} aria-label={playbackLabel}>
+          <span className="ocean-playback-icon">{playback==="playing"?<Pause size={15} strokeWidth={1.4}/>:playback==="complete"?<RotateCcw size={15} strokeWidth={1.4}/>:<Play size={15} strokeWidth={1.4}/>}</span>
+          <span className="ocean-playback-copy">{playbackLabel}<small>完整航程 · 36 秒</small></span>
+        </button>
         <button className={`ocean-sound ${sound.enabled?"is-on":""}`} onClick={sound.toggle} disabled={!sound.available} aria-pressed={sound.enabled} aria-label={sound.enabled?"关闭海浪声音":"开启海浪声音"}>
           {sound.enabled?<Volume2 size={16} strokeWidth={1.2}/>:<VolumeX size={16} strokeWidth={1.2}/>}<span>SOUND {sound.enabled?"ON":"OFF"}</span>
         </button>
+        </div>
       </footer>
       <div className="ocean-bottom-rule"><i style={{width:`${progress*100}%`}}/></div>
+      <span className="ocean-status" role="status">{playback==="playing"?"正在自动播放完整航程":playback==="paused"?"播放已暂停，可继续播放":playback==="complete"?"完整航程播放完毕，可重新播放":""}</span>
     </div>
     <div className="ocean-scroll-space" aria-label="滚动探索三幕故事"><section id="stillness" aria-label="第一幕：宁静之海"/><section id="tempest" aria-label="第二幕：驶入风暴"/><section id="revelation" aria-label="第三幕：瓶中世界"/></div>
     <dialog ref={dialog} className="ocean-dialog" onCancel={()=>setAbout(false)} onClick={e=>{if(e.target===e.currentTarget)setAbout(false);}}>
@@ -159,7 +135,7 @@ export default function OceanExperience(){
       <h2>一片海。<br/><em>一个世界。</em></h2>
       <p>PELAGIC 是一段以滚动驱动的三维海洋叙事。宁静的北海，一艘驶入风暴的白色三桅帆船，以及镜头之外的一只玻璃瓶。</p>
       <dl><div><dt>创作</dt><dd>GPT 6.1 Sol</dd></div><div><dt>场景</dt><dd>Three.js · WebGL</dd></div><div><dt>海面</dt><dd>12 Gerstner waves · 5 normal layers</dd></div><div><dt>影像时间线</dt><dd>Remotion · HyperFrames</dd></div></dl>
-      <p className="ocean-dialog-note">鼠标滚轮或触屏滑动控制镜头；右上方章节可直达各幕。海浪声需手动开启。</p>
+      <p className="ocean-dialog-note">播放按钮会自动走完整个航程；滚轮、触屏滑动或章节跳转会暂停播放。海浪声需手动开启。</p>
     </dialog>
   </div>;
 }
